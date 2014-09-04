@@ -1,0 +1,29 @@
+# 1. Collection + map reduce
+# 2. merge map reduce
+
+export SOURCE=/home/sandro/cygsandroav/logs/GA_15_04_2014/[cCs]*.gz
+export DEST=/home/sandro/cygsandroav/tmp
+
+ zcat $SOURCE | perl collector.pl | awk '{ k1=$1; k2=$2; k3=$3; $1=$2=$3=""; print k1 "#" k2 "\t" k3 "\t" $0 }'  | sort | perl collector_reduce.pl  |  sort | perl merger_map.pl |  sort | perl merger_reduce.pl  > $DEST/sip_ordered.dmp
+
+export NAMELOGS=/home/sandro/cygsandroav/tmp/name_res_15_04.log
+
+# 3. name aggregation
+
+cat $NAMELOGS | awk '{k1=$1;k2=$2;k3=$3;$1=$2=$3=""; print k3 "\t" k2 " " k1 " " $0}' |  sort | perl name_reduce.pl | awk '{ k = $5; $1=$5=""; print k "\tn\t" $0 }' > $DEST/names1.dmp
+
+# 4.1. SIP collection for name matching
+zcat $SOURCE | perl sname_collector.pl | awk '{ k=$4; $4="";  print k "\ts\t" $0 }'  > $DEST/names2.dmp  
+
+# 4.2. cid name matching
+cat $DEST/names1.dmp $DEST/names2.dmp | sort | perl resolv_reduce.pl |   perl -lane 'print "$F[0]\tn\t" . join "\t", map {"$_"} @F[1..7];' > $DEST/cid_names.dmp
+
+# 4.3. final SIP + name matching
+cat $DEST/cid_names.dmp $DEST/sip_ordered.dmp | sort | perl sipname_reduce.pl > $DEST/full_le.dmp
+
+# to view in full format
+#cat $DEST/full_le.dmp | perl viewer.pl
+
+# to view in summarized format
+#cat $DEST/full_le.dmp | perl viewer_sum.pl
+
