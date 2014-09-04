@@ -1,13 +1,15 @@
 HOST=localhost
 PORT=9200
+INDEX=le
 SIZE=10000
 FILE=out.csv
 
-if [ $# -eq 3 ]
+if [ $# -eq 4 ]
 	then
 		HOST=$1
 		PORT=$2
-		FILE=$3
+		INDEX=$3
+		FILE=$4
 fi
 
 QUERY="{
@@ -176,7 +178,7 @@ FIELDS=$(echo ${F[*]} | perl -lane 'print join ",", map { ".$_" } @F' )
 JQ='.["aggregations"].callid_agg.buckets[] | ['$FIELDS'] | @csv'
 
 echo $TITLE > $FILE
-curl http://$HOST:$PORT/events/event_sequence/_search?search_type=count -d "$QUERY" | jq -r "$JQ" >> $FILE
+curl http://$HOST:$PORT/f_$INDEX/event_sequence/_search?search_type=count -d "$QUERY" | jq -r "$JQ" >> $FILE
 
 #Rscript agg_checks.R $FILE
 

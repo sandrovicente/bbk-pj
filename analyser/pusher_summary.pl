@@ -9,16 +9,17 @@ use Data::Dumper;
 use LWP::UserAgent;
 use HTTP::Request;
 
-my ($host, $port) = ('localhost', 9200);
+my ($host, $port, $index) = ('localhost', 9200, 'le');
 
-if (@ARGV >= 2) {
+if (@ARGV >= 3) {
 	$host = $ARGV[0];
 	$port = $ARGV[1];
+	$index = $ARGV[2];
 }
-print "Using host= $host, port= $port\n";
 
-my $rest_url_root = "http://$host:$port/summaries/";
+print "Using host= $host, port= $port, index='$index'\n";
 
+my $rest_url_root = "http://$host:$port/s_$index/";
 # curl -<REST Verb> <Node>:<Port>/<Index>/<Type>/<ID>
 
 sub put_data {
@@ -60,10 +61,10 @@ sub put_data {
 ## Main LOOP ##
 
 while (<STDIN>) {
-    my ($key, $msg) = split(/\t\s*/);
+    my ($key, $type, $msg) = split(/\t\s*/);
     
     #my $r_le = decode_json($msg);
     
-    &put_data("summary2", $key, $msg);
+    &put_data("summary", $key, $msg);
 }
     
