@@ -46,6 +46,9 @@ sub check_initator {
 # groups all messages for a given call id
 while (<STDIN>) {
 		my @f = split;
+
+        next if (@f == 0);
+
 		my $comp = $COMP_NET_ID{$f[1]};
 		if (defined $comp) {
 			my $ref_handler = $COMP_HANDLERS{$comp};
