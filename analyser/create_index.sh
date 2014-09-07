@@ -1,8 +1,14 @@
-
+#!/bin/bash
 
 HOST=localhost
 PORT=9200
-INDEX=le
+INDEX=anonym
+
+if [ $# -eq 3 ]; then
+    HOST=$1
+    PORT=$2
+    INDEX=$3
+fi
 
 curl -XPOST "http://$HOST:$PORT/s_$INDEX" -d ' 
 {

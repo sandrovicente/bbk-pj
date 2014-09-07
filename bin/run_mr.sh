@@ -1,14 +1,6 @@
 #!/bin/bash
 
-BASE=/home/sandro/cygsandroav/tmp/bbk
-SOURCE=$BASE/logs
-TEMP=$BASE/tmp
-DEST=$BASE/out
-
-NAMELOGS=$SOURCE/name_resolver.log
-
-export COLMAT=`pwd`/../colmat
-export PERL5LIB=$PERL5LIB:$COLMAT
+source env.sh
 
 function cleanup() {
     rm -f $TEMP/*.dmp
