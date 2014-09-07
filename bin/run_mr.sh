@@ -56,13 +56,13 @@ echo
 # 4.3. final SIP + name matching
 echo "* Processing matching of ordered SIP events (MR-1) with name resolution events (MR-4)"
 echo
-cat $TEMP/cid_names.dmp $TEMP/sip_ordered.dmp | sort | perl $COLMAT/sipname_reduce.pl > $DEST/full_le.dmp
+cat $TEMP/cid_names.dmp $TEMP/sip_ordered.dmp | sort | perl $COLMAT/sipname_reduce.pl > $LE_FILE
 
-n_full_le=$(wc -l < $DEST/full_le.dmp)
+n_full_le=$(wc -l < $LE_FILE)
 echo "** Total of LEs generated: $n_full_le"
 
 # to view in full format
-#cat $DEST/full_le.dmp | perl $COLMAT viewer.pl
+#cat $LE_FILE | perl $COLMAT viewer.pl
 
 # to view in summarized format
-#cat $DEST/full_le.dmp | perl viewer_sum.pl
+#cat $LE_FILE | perl viewer_sum.pl

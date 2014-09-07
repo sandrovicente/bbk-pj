@@ -4,6 +4,8 @@ TEMP=$BASE/tmp
 DEST=$BASE/out
 
 NAMELOGS=$SOURCE/name_resolver.log
+LE_FILE=$DEST/full_le.dmp
+
 
 ELASTIC_SRV=localhost
 ELASTIC_PORT=9200

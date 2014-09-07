@@ -21,8 +21,6 @@ if [ $status -ne 0 ]; then
     exit
 fi
 
-LE_FILE=$DEST/full_le.dmp
-
 ## should check if has LEs to push
 if [ ! -f $LE_FILE ]; then
     echo "File containing serialized LEs not found.($LE_FILE)"
