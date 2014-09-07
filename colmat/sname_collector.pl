@@ -79,7 +79,7 @@ while (<STDIN>) {
                 print "$json_sip";
                 print "\n";
             }
-            else { print STDERR "*ERR: ". Dumper($sipmsg); }
+            else { print STDERR "*ERR: Component $comp\t". Dumper($sipmsg); }
 
 		}
 }
