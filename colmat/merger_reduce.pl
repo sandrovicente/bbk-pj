@@ -4,7 +4,7 @@
 #  2. <component_id>
 #  3. list of component's events ordered
 #
-#  Reduces on the key merging events from different components according to the order
+#  Reduces on the key merging list events across all component classes 
 
 use strict;
 use warnings;
@@ -16,6 +16,12 @@ use JSON::XS;
 
 use Data::Dumper;
 
+
+# Reduce function
+#
+# Obtain ordered LEs from all component classes
+# Find which component class initiated the events
+# Merge and order LEs starting by the class component that initiated the events
 
 sub proc_list {
     my($key, $init_comp, $ref_messages) = @_;
@@ -31,10 +37,6 @@ sub proc_list {
         return;
     }
 
-    #print ">> key=$key\tinit_comp=$init_comp\n";
-    #print Dumper($ref_messages);
-    #return;
-
     my $order_key;
     map { if ($COMP_ORDER{$_}[0] eq $init_comp) {$order_key = $_} } keys %COMP_ORDER;
 
@@ -45,12 +47,9 @@ sub proc_list {
         }
     }
 
-    #print "\n<break>\t$key\t$init_comp\t$order_key\n";
-    #print Dumper($r_merged_sip_list);
-    #print "<end>\n";
-
     print "$key\ts\t" . encode_json($r_merged_sip_list) . "\n";
 }
+
 
 ### MAIN LOOP ###
 
@@ -77,7 +76,6 @@ while (<STDIN>) {
     }
 
     $messages{$comp} = decode_json $msg;
-    #print "$key\t-\t[$comp]\t[$msg]\t[$initiator]\n";
 
 }
 

@@ -7,6 +7,8 @@ use JSON::XS;
 sub proc_key {
     my($key, $ref_s_msg, $ref_t_msg) = @_;
 
+    my $messages = decode_json $ref_s_msg->[0];
+
     if (@{$ref_t_msg}) {
         # build name entry
         my $pos;
@@ -21,14 +23,12 @@ sub proc_key {
             result => $ref_t_msg->[++$pos],
         };
         
-        my $messages = decode_json $ref_s_msg->[0];
 
         push(@{$messages}, $name);
 
-        #print Dumper($messages);
-        my $encoded = encode_json $messages;
-        print $key . "\tf\t" . $encoded . "\n";
     }
+    my $encoded = encode_json $messages;
+    print $key . "\tf\t" . $encoded . "\n";
 
 }
 

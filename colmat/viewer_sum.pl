@@ -9,18 +9,24 @@ use JSON::XS;
 
 use Data::Dumper;
 
+my $separator = ",";
+my @fields = qw(ts_ini ts_end ts_name count req_max req_mean req_min req_std last_mean last_max last_min last_std token);
+
 sub report {
     my ($key, $r_le) = @_;
 
-    my ($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $ret) = summarize_list_ev($r_le);    
+	my $ret = summarize_list_ev2($r_le);
 
     if (defined $ret) {
-        print "$key\t$ts_ini\t$ts_end\t$ts_name\t$count\t$max\t$mean\t$min\t$std\t$ret\n";
+		print "$key$separator";
+		print join $separator, map { "$ret->{$_}" } @fields; print "\n";
+        #print "$key\t$ts_ini\t$ts_end\t$ts_name\t$count\t$max\t$mean\t$min\t$std\t$ret\n";
     }
 
 }
 
 ## MAIN - Loop ##
+print "cid$separator"; print join $separator, map { "$_" } @fields; print "\n";
 
 while (<STDIN>) {
     my ($key, $type, $msg) = split(/\t\s*/);

@@ -35,16 +35,18 @@ my $list_ev_0 = [
 	{res => "200", cseq=>"1 INVITE", tsms => 12, req_ts=>11},
 ];
  
-my ($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $ret) = &summarize_list_ev($list_ev_0);
+
+my $ret = &summarize_list_ev2($list_ev_0);
+my ($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $token) = map { $ret->{$_} } qw(ts_ini ts_end ts_name count req_max req_mean req_min req_std token);
 
 is($count, 1);
 is($max,11);
 is($min,11);
 is($mean,11);
 is($std,0);
-is($ret, "INVITE;200");
+is($token, "INVITE;200");
 
-print "ts_ini=$ts_ini, ts_end=$ts_end, ts_name=$ts_name, count=$count, max=$max, mean=$mean, min=$min, std=$std, ret=$ret\n";
+print "ts_ini=$ts_ini, ts_end=$ts_end, ts_name=$ts_name, count=$count, max=$max, mean=$mean, min=$min, std=$std, token=$token\n";
 
 my $list_ev = [
 	{req => "INVITE", cseq=>"1 INVITE", tsms => 1},
@@ -55,7 +57,8 @@ my $list_ev = [
 	{res => "200", cseq=>"1 INVITE", tsms => 12, req_ts=>11, last_ts=>0},
 ];
 
-($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $ret) = &summarize_list_ev($list_ev);
+$ret = &summarize_list_ev2($list_ev);
+($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $token) = map { $ret->{$_} } qw(ts_ini ts_end ts_name count req_max req_mean req_min req_std token);
 
 is($count, 4);
 is($max,11);
@@ -64,9 +67,9 @@ is($mean,8);
 is(int($std*1000),3829);
 is($ts_ini, 1);
 is($ts_end, 12);
-is($ret, "INVITE;180;180;180;200");
+is($token, "INVITE;180;180;180;200");
 
-print "ts_ini=$ts_ini, ts_end=$ts_end, ts_name=$ts_name, count=$count, max=$max, mean=$mean, min=$min, std=$std, ret=$ret\n";
+print "ts_ini=$ts_ini, ts_end=$ts_end, ts_name=$ts_name, count=$count, max=$max, mean=$mean, min=$min, std=$std, token=$token\n";
 
 my $list_ev2 = [
 	{req => "INVITE", cseq=>"1 INVITE", tsms => 1},
@@ -80,14 +83,15 @@ my $list_ev2 = [
 	{res => "200", cseq=>"2 BYE", tsms => 122, req_ts=>2, last_ts=>2},
 ];
 
-($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $ret) = &summarize_list_ev($list_ev2);
+$ret = &summarize_list_ev2($list_ev2);
+($ts_ini, $ts_end, $ts_name, $count, $max, $mean, $min, $std, $token) = map { $ret->{$_} } qw(ts_ini ts_end ts_name count req_max req_mean req_min req_std token);
 
 is($count, 4);
 is($max,11);
 is($min,3);
 is($mean,8);
 is(int($std*1000),3829); # must account only for call establishing
-is($ret, "INVITE;180;180;180;200;ACK;BYE;200"); # but report full pattern
+is($token, "INVITE;180;180;180;200;ACK;BYE;200"); # but report full pattern
 is($ts_ini, 1);
 is($ts_end, 13);
 

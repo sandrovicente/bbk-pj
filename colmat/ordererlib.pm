@@ -1,5 +1,10 @@
 package ordererlib;
 
+#
+# Logic for processing SIP messages: Parsing and Ordering
+#
+
+
 use strict;
 use warnings;
 use Exporter;
@@ -8,16 +13,19 @@ use vars qw(@ISA @EXPORT);
 @ISA = qw(Exporter);	
 @EXPORT= qw(
 	&msg_handler_opensips 
-	&msg_handler_sipgw 
+	&msg_handler_rs 
 	&parse_sip
 	&find_origin
     &order_sipn
     &order_merge_sipn
     &find_calc_tsms
-
-    &stat_count
-    &stat_count2
 );
+
+
+# handler to extract SIP message from OpenSIPs log format
+#
+# receives a raw log line (OpenSIPs)
+# returns text referring to SIP contents
 
 sub msg_handler_opensips {
 	my $msg = ${$_[0]}; # Message is passed as _reference_
@@ -27,13 +35,27 @@ sub msg_handler_opensips {
 	return 0;
 }
 
-sub msg_handler_sipgw {
+
+# handler to extract SIP message from reSIPprocate log format 
+#
+# receives a raw log line (reSIPprocate)
+# returns text referring to the SIP contents
+
+sub msg_handler_rs {
 	my $msg = ${$_[0]}; # Message is passed as _reference_
-	if ($msg =~ m/.*SIP \w+ \'([^\']+)\'/) {
+	if ($msg =~ m/.*SIP \w+ \'([^\']+)\#015\ \'/) {
 		return $1;
 	}
 	return 0;
 }
+
+
+# Obtain contents from formatted SIP uri
+#
+# receives a string containing "To:" or "From:" SIP header contents
+#   e.g. "Tlzqf TU0"<sip:tlzqf-tu0@mzoduftu_fbntq__1.ponjdsptpgu.dpn>;tag=70efe8f224;epid=D51E4E9048
+# returns the part refering to the SIP URI
+#   e.g <sip:tlzqf-tu0@mzoduftu_fbntq__1.ponjdsptpgu.dpn>
 
 sub parse_sip_uri {
     my ($sip_field) = @_;
@@ -42,6 +64,15 @@ sub parse_sip_uri {
         return $1;
     }
 }
+
+
+# parse text from SIP message, converting it into a hash structure 
+#
+# receives 
+#   the text contaning the sip message; and
+#   the component class (CoC)
+#
+# returns a reference to the SIP message codified in a hash structure
 
 sub parse_sip {
 	my($sipmsg, $component) = @_;
@@ -90,6 +121,14 @@ sub parse_sip {
 	return \%tuple;
 }
 
+
+# Find component that originated the SIP message
+#
+# receives 
+#  a reference to a SIP hash structure
+#  a reference to a mapping from components to component class
+# returns a reference to a SIP hash structure containing field 'origin' with the component class that originated the message
+
 sub find_origin() {
 	my ($r_msgtuple, $r_clas) = @_; # two hash references
 
@@ -101,6 +140,9 @@ sub find_origin() {
 }
 
 ###############
+# SIP Ordering tree
+# 
+# determines the precedence between SIP events 
 
 our %SIP_ORDER = (
     req => {
@@ -144,6 +186,18 @@ our %SIP_ORDER = (
     }
 );
 
+###############
+
+
+# Helper function
+# 
+# receives
+#  reference to SIP message hash structure
+#  position in the ordering tree
+#
+# returns
+#  a new position in the ordering tree corresponding to the given SIP message  
+
 sub find_order_item {
     my ($src, $pos) = @_;
 
@@ -170,39 +224,13 @@ sub find_order_item {
     return $p;
 }
 
-sub order_sipn1() {
-    my $ref_sipn = $_[0]; # array of hash ref;
 
-    my @sorted = sort {
-
-        if ($a->{cseq_n} < $b->{cseq_n}) {
-            return -1;
-        } elsif ($a->{cseq_n} > $b->{cseq_n}) {
-            return 1;
-        } else {
-            my $pos = &find_order_item($a, \%SIP_ORDER);
-            if (defined $pos) {
-                my $p = &find_order_item($b, $pos);
-
-                return $p;
-            }
-            
-            return 0;
-        }
-    } @{$ref_sipn};
-
-	my $prev_label;
-	my $prev_ref;
-	my $ref;
-	foreach $ref(@sorted) {
-		my $current = $ref->{req} || $ref->{res};
-		$ref->{_ord} = ($prev_label && $prev_label eq $current ? $prev_ref->{_ord} + 1 : 0);
-		$prev_label = $current;
-		$prev_ref = $ref;
-	}
-
-    return \@sorted;
-}
+# SIP message ordering
+#
+# receives a reference to a list of SIP message structures
+# sort the SIP messages using the local component timestamp
+#  and the structure of the SIP protocol
+# returns an ordered list of SIP messages (component level) 
 
 sub order_sipn() {
     my $ref_sipn = $_[0]; # array of hash ref;
@@ -239,72 +267,11 @@ sub order_sipn() {
 }
 
 
-###############
-
-# order flow of sip messages in a component (?)
-sub order_sipn0() {
-    my $ref_sipn = $_[0]; # array of hash ref;
-    
-	my @sorted = sort {
-        #print "$a->{cseq_n}\t$b->{cseq_n}\n";
-        if ($a->{cseq_n} < $b->{cseq_n}) {
-            return -1;
-        } elsif ($a->{cseq_n} > $b->{cseq_n}) {
-            return 1;
-        } else {
-            ## check request/request
-            if (defined $a->{req} && defined $b->{req}) {
-                if ($a->{req} =~ /INVITE/i) {
-                    return -1;
-                } elsif ($b->{req} =~ /INVITE/i) {
-                    return 1;
-                } else { 
-                    return 0;
-                }
-            } 
-            ## check request/response
-            elsif (defined $a->{req} && defined $b->{res}) {
-                if ($a->{req} =~ /ACK/i) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            } 
-            ## check response/request
-            elsif (defined $a->{res} && defined $b->{req}) {
-                if ($b->{req} =~ /ACK/i) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-            ## both are responses
-            else {
-                if ($a->{res} >= 200) {
-                    return 1;
-                } elsif ($b->{res} >= 200) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        }
-    } @{$ref_sipn};
-    
-	# set _ord fields. Incremented when found repetition	
-	my $prev_label;
-	my $prev_ref;
-	my $ref;
-	foreach $ref(@sorted) {
-		my $current = $ref->{req} || $ref->{res};
-		$ref->{_ord} = ($prev_label && $prev_label eq $current ? $prev_ref->{_ord} + 1 : 0);
-		$prev_label = $current;
-		$prev_ref = $ref;
-	}
-
-	return \@sorted;
-}
-
+# helper matcher
+#
+# given a condition, pre-action, loop-action and final action:
+# evalutes pre-action if condition is true, then keeps checking conditon and evaluating loop action. 
+#  at the end, if condition has been true at least once, evaluates final action. 
 
 sub while_matcher() {
 	my ($r_cond, $r_pre, $r_loop, $r_end) = @_;
@@ -319,6 +286,15 @@ sub while_matcher() {
     }
     return 0;
 }
+
+
+# Merge two ordered lists of SIP events (per component)
+#
+# receives
+#  reference to acummulating list
+#  reference to source list
+#
+# returns acummulating list with merged events from the source list in causal order
 
 sub order_merge_sipn {
     my($r_list1, $r_list2) = @_; # list1 always is request originator, list2 is response originator
@@ -391,7 +367,13 @@ sub order_merge_sipn {
     return \@ret;
 }
 
+
 use Time::Local;
+
+# Calculate timestamp in milliseconds
+#
+# receives a timestamp in ISO text format
+# returns timestamp as UNIX epoch in milliseconds
 
 sub find_calc_tsms {
     my ($str) = @_;

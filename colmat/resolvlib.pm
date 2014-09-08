@@ -1,4 +1,7 @@
-## resolv pm
+# Resolv
+#
+# Function for data matching
+
 package resolvlib;
 
 use strict;
@@ -16,19 +19,16 @@ use vars qw(@ISA @EXPORT);
     &sel_cid_name_prox
 );
 
-
-sub push_acum_hash {
-    my ($key, $r_hash, $r_item) = @_;
-
-    if ($r_hash->{$key}) {
-        push($r_hash->{$key}, $r_item);
-    } else {
-        $r_hash->{$key} = [$r_item];
-    }
-
-    return $r_hash;
-}
-
+# Find closest match between records based on timestamps
+#
+# Receives
+#   cut off limit for timestaps difference considered for the aproximation
+#   map containing references to name resolution records
+#   map containing references to sip records
+# Returns 
+#   a map of name resolution records
+#    key=name resolution id
+#    value=list sip records with timestamp within the cutoff limit   
 
 sub sel_cid_name_prox {
     my ($allowed_diff, $r_n_list, $r_s_list)= @_;
@@ -37,7 +37,7 @@ sub sel_cid_name_prox {
     my %nres_cid_list = ();
     my %cid_min_diff = ();
 
-    # for each call id, pick name resolution with elegible time differences
+    # for each call id record, calculate  name resolution with elegible time differences
     foreach my $cid(keys %{$r_s_list}) {
         my $cid_ts = int($r_s_list->{$cid}->[2] / 1000); # timestamp in ms -> s
  
@@ -51,8 +51,13 @@ sub sel_cid_name_prox {
             }
         }
     }
-    #print Dumper(\%cid_min_diff);
-    
+    # at this point, 
+    #  %cid_min_diff maps 'cid' to minimum timestamp difference among name resolution records
+    #  %nres_cid_list contains the 'cid' with minimum timestamp difference for each name resolution record 
+ 
+    # now searches in for each name record the cids with minimum time difference
+    # purge the ones that are above the minimum
+
     foreach my $nr(keys %nres_cid_list) {
         my $min_diff = min map { $nres_cid_list{$nr}->{$_} } keys %{$nres_cid_list{$nr}};
         foreach my $cid(keys %{$nres_cid_list{$nr}}) {
@@ -63,7 +68,6 @@ sub sel_cid_name_prox {
             }
         }
     }
-    #print Dumper(\%nres_cid_list);
 
     return \%nres_cid_list;
 }

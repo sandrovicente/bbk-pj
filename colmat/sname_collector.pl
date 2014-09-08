@@ -1,21 +1,19 @@
-
 use strict;
 use warnings;
 use lib "..";
 use ordererlib;
 use lm_env;
 
+#
+# Clone of collector.pl, but use contents of "From" header as key (as opposed to Cid)
+#
+# Obs.: Collector could be modified to perform this task as well, even simultaneously 
+# generate outputs for two further MapReduce processes (MR-2 and MR-3).
+# 
+# This is in the cod improvement task list
 
 use JSON::XS;
 use Data::Dumper;
-
-# list of messages per component classes
-my %clust = (
-    "c_0" => [],
-    "c_1" => [],
-    "c_2" => [],
-    "c_3" => [] 
-    );
 
 sub check_sip_validity {
     my ($ref_sipmsg) = @_;

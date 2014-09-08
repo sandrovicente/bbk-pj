@@ -1,5 +1,9 @@
 package lm_env;
 
+# Environment configuration
+#
+
+
 use strict;
 use warnings;
 
@@ -12,6 +16,9 @@ use vars qw(@ISA @EXPORT);
 	%COMP_HANDLERS
     %COMP_ORDER
 );
+
+
+# Mapping from components to component classes
 
 our %COMP_NET_ID = (
 '101.161.159.233' => 'c_0',
@@ -72,18 +79,23 @@ our %COMP_NET_ID = (
 'usa_sip_c_04' => 'c_0',
 );
 
+
+# order of classes of components for request messages
+
 our %COMP_ORDER = (
     IN => [qw(c_0 c_1 c_2 c_3)],
     OUT => [qw(c_3 c_2 c_1 c_0)]
     );
 
-# handlers to obtain sip message from log message (or undef if not containing it)
+
 use ordererlib;
+
+# association between component classes and SIP message handlers
 
 our %COMP_HANDLERS = (
 	"c_0" => \&msg_handler_opensips,
 	"c_1" => \&msg_handler_opensips,
 	"c_2" => \&msg_handler_opensips,
-	"c_3" => \&msg_handler_sipgw
+	"c_3" => \&msg_handler_rs
 );
 

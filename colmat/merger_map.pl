@@ -1,14 +1,16 @@
 # Map function - Merging phase
 #
 # Receives records containing
-#  1. Key= <component_id> '#' <correlation_id>
-#  2. list of component's events ordered
+#  1. Key= <CoC> '#' <Cid>
+#  2. list of component  events ordered
+#  3. initiator
 #
 # This map change the shape of these records and generate 
 #
-#  1. Key= <correlation_id>
-#  2. <component_id>
+#  1. Key= <Cid>
+#  2. <CoC>
 #  3. list of component's events ordered
+#  4. initiator
 
 use strict;
 use warnings;

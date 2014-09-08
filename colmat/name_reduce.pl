@@ -1,6 +1,6 @@
-# obtain and store a list of <keys> <sip messages> separated by tabs
-# accumulate all sip messages
-# parse them and return a SIP-ORDERED LIST OF EVENTS for the provided <key>
+# Part of MR-3 step
+#
+# Groups all name resolution records with the same UUID   
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use Data::Dumper;
 
 use Time::Local;
 
-sub find_calc_tsms {
+sub find_calc_ts {
     my ($str) = @_;
 
     my @t = ($str =~ m!(\d{4})\-(\d{2})\-(\d{2})\ (\d{2}):(\d{2}):(\d{2})!);
@@ -21,7 +21,10 @@ sub find_calc_tsms {
 }
 
 
-## reduce function
+# reduce function
+#
+# For a given key (UUID)
+# Place entries with 'BEGIN' before other entries ('END' or 'OK') and generates an aggregate record
 
 sub proc_list {
     my($key, $ref_messages) = @_;
@@ -40,8 +43,8 @@ sub proc_list {
 
     my @ord_messages = sort { if ($a->[3] eq 'BEGIN') { return -1; } else { return 1; } } @{$ref_messages};
     
-    my ($ts1, $ts1_s) = find_calc_tsms($ord_messages[0]->[1] . " " . $ord_messages[0]->[0]); 
-    my ($ts2, $ts2_s) = find_calc_tsms($ord_messages[1]->[1] . " " . $ord_messages[1]->[0]); 
+    my ($ts1, $ts1_s) = find_calc_ts($ord_messages[0]->[1] . " " . $ord_messages[0]->[0]); 
+    my ($ts2, $ts2_s) = find_calc_ts($ord_messages[1]->[1] . " " . $ord_messages[1]->[0]); 
     my $ts_diff = $ts2 - $ts1;
     
     print "\t$ts1\t$ts2\t$ts_diff";
@@ -49,7 +52,6 @@ sub proc_list {
     print "\t" . $ord_messages[1]->[2];
     print "\t" . $ord_messages[1]->[3];
 
-    #print $key. "\t" . join "\t", map { map { "$_" } @{$_} } @{$ref_messages};
     print "\n";
 }
 

@@ -1,5 +1,8 @@
 package statlib;
 
+# Package with simple statistical functions
+#
+
 use strict;
 use warnings;
 use Exporter;
@@ -13,12 +16,12 @@ use List::Util qw(max min sum);
     &stat_count2
     &time_diff_com
     &ts_to_treadable
-    &summarize_list_ev
     &summarize_list_ev2
 );
 
 
-# statistic counting per component
+# Given an LE and a filter for either response codes or requests types, 
+# calculates the total number of messages 
 
 sub stat_count {
     my $r_res = {};
@@ -42,6 +45,9 @@ sub stat_count {
     return $r_res;
 }
 
+# Calculate the number of messages using 'stat_count' and generate a text response line (split by '\t')
+#
+
 sub stat_count2 {
     my ($r_sip_msg_list, $r_filter_l) = @_;
 
@@ -55,7 +61,7 @@ sub stat_count2 {
     return $req_ct . "\t" . $req_pr . ";\t" . $res_ct . "\t" . $res_pr; 
 }
 
-#use Time::localtime;
+# Convert timestamps in seconds in unix format to human readable ISO like form
 
 sub ts_to_treadable {
     my ($time) = @_;
@@ -67,62 +73,12 @@ sub ts_to_treadable {
         $hours, $minutes, $seconds, $year+1900, $month+1, $day_of_month);
 }
 
-sub summarize_list_ev {
-    my ($r_le) = @_;
-    
-    my $n_req=0;
-    my $req_ts=0;
-    my @req_ts_arr = ();
-    my ($ts_ini, $ts_end);
-    my $ts_name="-";
-    
-    my @tokens = ();
-    
-    for my $ev(@{$r_le}) {
-        if ($ev->{tsms} && $ev->{cseq} && ($ev->{cseq} =~ 'INVITE' || $ev->{cseq} =~ 'ACK') ) {
-            $ts_ini = $ts_ini || $ev->{tsms};
-            $ts_end = $ev->{tsms};
-        }
-        
-        if ($ev->{req}) {
-            push(@tokens, $ev->{req});
-        } 
-        elsif ($ev->{res}) {            
-            # disregard provisional "trying"
-            next if ($ev->{res} =~ '100');
-            
-            push(@tokens, $ev->{res});
-            
-            # discard responses from non-INVITE from statistics 
-            next if ($ev->{cseq} !~ 'INVITE');
-            
-            ++$n_req;
-            $req_ts += $ev->{req_ts};
-            push(@req_ts_arr, $ev->{req_ts});
-            
-        } 
-        elsif ($ev->{type} eq 'n') {
-            push(@tokens, $ev->{result});
-            $ts_name = $ev->{ts_diff};
-        }
-    }
-    
-    if ($n_req > 0) {
-        # calculate statistics
-        my $req_mean = $req_ts / $n_req;
-        my $max = max @req_ts_arr;
-        my $min = min @req_ts_arr;
-        my $std = sum (map { ($_ - $req_mean)**2 } @req_ts_arr);
-        $std = $n_req > 1 ? $std / ($n_req-1) : 0; # generate stddev == 0 for single values
-        $std = sqrt($std);
-        my $count = scalar @req_ts_arr;
-        my $ret = join ";", map{ "$_" } @tokens;
-        
-        #print "$key\t$ts_ini\t$ts_end\t$ts_name\t$count\t$max\t$req_mean\t$min\t$std\t$ret\n";
-        return ($ts_ini, $ts_end, $ts_name, $count, $max, $req_mean, $min, $std, $ret);
-    }
-    # returns undef otherwise
-}
+
+# Calculate summarized LE
+#
+# receives an ordered LE across all component classes
+#
+# Generates a single record with the summarized contents for the LE
 
 sub summarize_list_ev2 {
     my ($r_le) = @_;
@@ -208,6 +164,12 @@ sub summarize_list_ev2 {
     }
     # returns undef otherwise
 }
+
+
+# Calculate 'last_ts' and 'req_ts' time differences
+#
+# Given a LE for a SINGLE COMPONENT CLASS
+# calculate the timestamp differences between messages 'last_ts' and between requests and responses 'req_ts' 
 
 sub time_diff_com {
     my ($r_le) = @_;

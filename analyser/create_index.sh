@@ -13,7 +13,7 @@ fi
 curl -XPOST "http://$HOST:$PORT/s_$INDEX" -d ' 
 {
 	"mappings": {
-		"summaries" : {
+		"summary" : {
 			"properties": { 
 				"ts_name": {"type": "string", "index":"not_analyzed"},
 					"count": {"type": "long"},

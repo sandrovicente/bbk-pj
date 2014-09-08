@@ -1,6 +1,9 @@
-# obtain and store a list of <keys> <sip messages> separated by tabs
-# accumulate all sip messages
-# parse them and return a SIP-ORDERED LIST OF EVENTS for the provided <key>
+# Executes ordering on a group of SIP events 
+#
+# store all SIP events with same reduce key (Cid + Coc) n a list
+# order the events
+# calculate measures for 'req_ts' and 'last_ts' 
+# 
 
 use strict;
 use warnings;
@@ -19,8 +22,8 @@ sub proc_list {
         return;
     }
 
-    my $ref_msg_ord = &order_sipn($ref_messages);
-    &time_diff_com($ref_msg_ord);
+    my $ref_msg_ord = &order_sipn($ref_messages);  # ordering
+    &time_diff_com($ref_msg_ord);                  # calculate 'req_ts' and 'last_ts' 
 
     print $key. "\t" . encode_json ($ref_msg_ord) . "\t" . $initiator_count . "\n";
 }
@@ -34,8 +37,6 @@ my $initiator_count = 0;
 
 while (<STDIN>) {
     my ($key, $initiator, $msg) = split(/\t\s*/);
-
-    #print "$key\t-\t[$msg]\t[$initiator]\n";
 
     if (!$prev_key || $prev_key ne $key) {
         # process existing elements in the list
