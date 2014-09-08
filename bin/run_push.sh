@@ -37,14 +37,14 @@ echo
 echo "* Going to send summarized events to analytic database"
 echo
 
-cat $LE_FILE | perl $ANALYS/pusher_summary.pl $ELASTIC_SRV $ELASTIC_PORT $ELASTIC_INDEX > /dev/null
+cat $LE_FILE | perl $ANALYS/pusher_summary.pl $ELASTIC_SRV $ELASTIC_PORT $ELASTIC_INDEX > $TEMP/pusher_summary.log
 
 echo "* finished sending summarized events"
 echo
 
 echo "* Going to send full event sequences to analytic database"
 echo
-cat $LE_FILE | perl $ANALYS/pusher.pl $ELASTIC_SRV $ELASTIC_PORT $ELASTIC_INDEX > /dev/null
+cat $LE_FILE | perl $ANALYS/pusher.pl $ELASTIC_SRV $ELASTIC_PORT $ELASTIC_INDEX > $TEMP/pusher.log
 
 echo "* finished sending events"
 echo
