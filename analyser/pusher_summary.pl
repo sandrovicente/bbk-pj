@@ -1,3 +1,6 @@
+# Send summarized LEs to analytical database using RESTful interface 
+#
+
 use strict;
 use warnings;
 
@@ -8,6 +11,8 @@ use Data::Dumper;
 
 use LWP::UserAgent;
 use HTTP::Request;
+
+# ElasticSearch default values
 
 my ($host, $port, $index) = ('localhost', 9200, 'le');
 
@@ -20,7 +25,6 @@ if (@ARGV >= 3) {
 print "Using host= $host, port= $port, index='$index'\n";
 
 my $rest_url_root = "http://$host:$port/s_$index/";
-# curl -<REST Verb> <Node>:<Port>/<Index>/<Type>/<ID>
 
 sub put_data {
     my($type, $key, $content) = @_;
@@ -52,8 +56,6 @@ sub put_data {
         $req->content_type('application/JSON');
         $req->content(encode_json \%summary_content);
         my $resp = $ua->request($req);
-        #print Dumper($resp);
-        print Dumper(\%summary_content);
         print "$url\t" . $resp->status_line . "\n";
     }    
 }
@@ -62,8 +64,6 @@ sub put_data {
 
 while (<STDIN>) {
     my ($key, $type, $msg) = split(/\t\s*/);
-    
-    #my $r_le = decode_json($msg);
     
     &put_data("summary", $key, $msg);
 }

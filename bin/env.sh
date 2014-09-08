@@ -1,21 +1,21 @@
-BASE=/home/sandro/cygsandroav/tmp/bbk
-SOURCE=$BASE/logs
-TEMP=$BASE/tmp
-DEST=$BASE/out
+export BASE=/home/sandro/cygsandroav/tmp/bbk
+export SOURCE=$BASE/logs
+export TEMP=$BASE/tmp
+export DEST=$BASE/out
 
-NAMELOGS=$SOURCE/name_resolver.log
-LE_FILE=$DEST/full_le.dmp
+export NAMELOGS=$SOURCE/name_resolver.log
+export LE_FILE=$DEST/full_le.dmp
 
-ELASTIC_SRV=localhost
-ELASTIC_PORT=9200
-ELASTIC_INDEX=telco
+export ELASTIC_SRV=localhost
+export ELASTIC_PORT=9200
+export ELASTIC_INDEX=telco
 
-MQ_SRV=localhost
-MQ_PORT=61613
-MQ_USER=admin
-MQ_PASS=admin
+export MQ_SRV=localhost
+export MQ_PORT=61613
+export MQ_USER=admin
+export MQ_PASS=admin
 
-MQ_QUEUE=HLE
+export MQ_QUEUE=HLE
 
 export COLMAT=`pwd`/../colmat
 export ANALYS=`pwd`/../analyser
