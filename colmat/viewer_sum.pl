@@ -1,3 +1,22 @@
+# Show LEs in summarized format
+#
+# Each line contain
+# 
+# - ts_ini
+# - ts_end
+# - ts_name: time elapsed to resolve name
+# - count of messages
+# - max 'req_ts' across all messags
+# - mean 'req_ts' across all messages
+# - min 'req_ts' across all messages
+# - standard deviation from all 'req_ts' messages
+# - max 'last_ts' across all messags
+# - mean 'last_ts' across all messages
+# - min 'last_ts' across all messages
+# - standard deviation from all 'last_ts' messages
+# - list of token containing the sequence of events
+#
+
 use strict;
 use warnings;
 

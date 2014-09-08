@@ -1,16 +1,29 @@
+# Bind name resolution event to SIP LE across all components
+#
+# Executed after SIP event X name resolution matching (MR-4) 
+#
+
 use strict;
 use warnings;
 
 use Data::Dumper;
 use JSON::XS;
 
+# Reduce function
+#
+# receives 
+#  reference to a serialized LE
+#  reference to a name resolution record
+# 
+#  returns a serialized LE containing the name resolution record
+#
 sub proc_key {
     my($key, $ref_s_msg, $ref_t_msg) = @_;
 
     my $messages = decode_json $ref_s_msg->[0];
 
     if (@{$ref_t_msg}) {
-        # build name entry
+        # build a name resolution entry for the LE
         my $pos;
         my $name = {
             type => 'n',
@@ -32,6 +45,9 @@ sub proc_key {
 
 }
 
+# Check if the Reduce is applied to a valid key. 
+# Noop if invalid
+#
 sub proc_key_entry {
     my($key, $ref_s_msg, $ref_t_msg) = @_;
 

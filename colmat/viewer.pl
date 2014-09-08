@@ -1,3 +1,19 @@
+# Show LEs in full format
+# 
+# Sip Records:
+# - Request type / Response code
+# - CSeq number and original request type
+# - ts_ini
+# - Component class
+# - last_ts (time elapsed since last message)
+# - req_ts (time elapsed for a response since corresponding request)
+#
+# name resolution records:
+# - origin URI
+# - ts ini
+# - time elapsed for name resolution
+# - result (OK or ERROR)
+
 use strict;
 use warnings;
 
