@@ -1,0 +1,17 @@
+START UP
+------
+
+hdfs namenode -format
+
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
+
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar pi 2 5
+
+MR1
+
+hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.3.0.jar -mapper collector_map.sh -reducer 'perl /home/sandro/cygsandroav/work/prjtst/github/bbk-pj/colmat/collector_reduce.pl' -file collector_map.sh -file $COLMAT/collector_reduce.pl -file $COLMAT/collector.pl -file $COLMAT/ordererlib.pm -file $COLMAT/lm_env.pm -file $COLMAT/statlib.pm -input /user/sandro/logs/ -output /user/sandro/logs.1
+
+MR2
+
+hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.3.0.jar -mapper 'perl /home/sandro/cygsandroav/work/prjtst/github/bbk-pj/colmat/merger_map.pl' -reducer 'perl /home/sandro/cygsandroav/work/prjtst/github/bbk-pj/colmat/merger_reduce.pl' -file $COLMAT/merger_reduce.pl -file $COLMAT/merger_map.pl -file $COLMAT/ordererlib.pm -file $COLMAT/lm_env.pm -file $COLMAT/statlib.pm -input /user/sandro/logs.1 -output /user/sandro/logs.1.4
