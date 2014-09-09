@@ -24,28 +24,37 @@ if (@ARGV >= 3) {
 
 print "Using host= $host, port= $port, index='$index'\n";
 
-my $rest_url_root = "http://$host:$port/f_$index/";
-
 sub put_data {
     my($type, $key, $content) = @_;
     
     my $dec_content = decode_json $content;
     
     my $seq = 0;
+    my $bulk = [];
     for my $json_content (@{$dec_content}) {
     
-        my $url = $rest_url_root . $type . "/" . $key . "_" . $seq;
-        
         $json_content->{_ord} = int($seq);
-        
-        my $ua = LWP::UserAgent->new;
-        my $req = HTTP::Request->new("PUT", $url);
-        $req->content_type('application/JSON');
-        $req->content(encode_json $json_content);
-        my $resp = $ua->request($req);
-        print "$url\t" . $resp->status_line . "\n";
+ 
+        push($bulk, { index => { _index => "f_$index", _type=> $type,  _id => $key . "_" . $seq } });
+        push($bulk, $json_content); 
+
         ++$seq;
-    }        
+    }    
+
+    my $bulk_url = "http://$host:$port/_bulk";
+
+    my $ua = LWP::UserAgent->new;
+    my $req = HTTP::Request->new("POST", $bulk_url);
+    $req->content_type('application/JSON');
+
+    my $serial_bulk = join "\n", map { encode_json $_ } @{$bulk};
+    $serial_bulk .= "\n";
+
+    $req->content($serial_bulk);
+    my $resp = $ua->request($req);
+
+    print $serial_bulk;
+    print "$bulk_url\t" . $resp->status_line . "\n";
 }
 
 ## Main LOOP ##

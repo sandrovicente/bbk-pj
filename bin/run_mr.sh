@@ -15,10 +15,14 @@ echo "* Temporary files in $TEMP"
 echo "* Final result in $DEST"
 echo "*************************************"
 echo
-echo "* Processing MR-1 and MR-2 on SIP log files" 
+echo "* Processing MR-1 on SIP log files" 
 echo
 
-cat $SOURCE/c_*.log | perl $COLMAT/collector.pl | awk '{ k1=$1; k2=$2; k3=$3; $1=$2=$3=""; print k1 "#" k2 "\t" k3 "\t" $0 }'  | sort | perl $COLMAT/collector_reduce.pl  |  sort | perl $COLMAT/merger_map.pl |  sort | perl $COLMAT/merger_reduce.pl  > $TEMP/sip_ordered.dmp 2> $TEMP/sip_ordered.err
+cat $SOURCE/c_*.log | perl $COLMAT/collector.pl | awk '{ k1=$1; k2=$2; k3=$3; $1=$2=$3=""; print k1 "#" k2 "\t" k3 "\t" $0 }'  > $TEMP/sip_mr1.dmp 2> $TEMP/sip_mr1.err
+echo
+echo "* Processing  MR-2 on SIP log files" 
+echo 
+cat $TEMP/sip_mr1.dmp | sort | perl $COLMAT/collector_reduce.pl  |  sort | perl $COLMAT/merger_map.pl |  sort | perl $COLMAT/merger_reduce.pl  > $TEMP/sip_ordered.dmp 2> $TEMP/sip_ordered.err
 
 n_sip_ordered=$(wc -l < $TEMP/sip_ordered.dmp)
 echo "** MR-1 and MR-2 completed. Total of SIP sequences of events: $n_sip_ordered"
