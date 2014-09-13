@@ -32,17 +32,24 @@ Packages required:
 -	Perl 5 version 14.4, including the packages JSON::XS, LWP::Simple and Net::Stomp (installed from CPAN);
 -	curl 7.19.7;
 -	Sun Java JDK 1.7.0 or higher;
--	ElasticSearch 1.3.1 (install from http://www.elasticsearch.org/download);
--	R 3.0.0, including package plyr (*);
--	jq JSON processor 1.3 (install from http://stedolan.github.io/jq/download);
--   Apache Active MQ 5.10.0 (install from http://activemq.apache.org/activemq-5100-release.html).
-
-(*) At the bottom of this file there is a section about how to install R 3.0.0 (or higher) on Debian Wheezy.
+-	ElasticSearch 1.3.1 (install from http://www.elasticsearch.org/download) (*);
+-	R 3.0.0, including package plyr (**);
+-	jq JSON processor 1.4 (install from http://stedolan.github.io/jq/download) (*);
+-   Apache Active MQ 5.10.0 (install from http://activemq.apache.org/activemq-5100-release.html) (*)
 
 Optional
 
--   Apache Hadoop 2.3.0, but not necessary for standalone mode described below.
+-   Apache Hadoop 2.3.0, but not necessary for standalone mode described below (*).
 
+
+(*)  Copies of these packages, as they were downloaded from their websites before being installed in the test environment, are in the CD provided, in the folder '3rdpary'. In particular, jq was compiled and installed from the sources.
+
+(**) At the bottom of this file there is a section about how to install R 3.0.0 (or higher) on Debian Wheezy.
+
+    - Apache Active MQ, Apache Hadoop and ElasticSearch are licensed under Apache License V.2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+    - jq JSON processor is licensed under MIT license 
+    - R is licensed under GPL/2 (http://www.apache.org/licenses/LICENSE-2.0)
+    
 FILE STRUCTURE
 --------------
 
@@ -180,8 +187,12 @@ FILE STRUCTURE
 		
 	run_analysis.sh  
 
-		Run analysis on data stored in ElasticSearch
+		Run analysis on data stored in ElasticSearch. Generate HLEs in CSV files and send to queue in Apache ActiveMQ
 		
+    pull.sh
+    
+        Auxiliary script to pull HLEs from Apache ActiveMQ
+        
 +hadoop 
 
 	Configurations and auxiliary scripts to run MR-1 and 2 on Apache Hadoop.
@@ -205,9 +216,9 @@ FILE STRUCTURE
 PRE-EXECUTION
 -------------
 
-0. All packages in the 'PREREQUISITES' section.
+0. All packages in the 'PREREQUISITES' section should be installed.
 
-1. Install and Start ElasticSearch - Out of box configuration
+1. Start ElasticSearch - Out of box configuration
 
 2. Start Apache ActiveMQ - out of box configuration
 
