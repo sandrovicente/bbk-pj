@@ -15,6 +15,9 @@ echo "* Temporary files in $TEMP"
 echo "* Final result in $DEST"
 echo "*************************************"
 echo
+CheckPack
+echo "Packages installed ok."
+echo
 echo "* Processing MR-1 on SIP log files" 
 echo
 

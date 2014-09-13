@@ -8,6 +8,9 @@ echo "* Temporary files in $TEMP"
 echo "* Final result in $DEST"
 echo "*************************************"
 echo
+CheckPack
+echo "Packages installed ok."
+echo
 echo "* Analsys" 
 echo
 
@@ -56,10 +59,11 @@ if [ $send_to_mq ]; then
 
     ## should check if MQ is available
     nc -z $MQ_SRV $MQ_PORT
+	status=$?
 
     if [ $status -ne 0 ]; then
-        echo "Error: ElasticSearch server is not UP"
-        echo "Please check if server is listening on host: $ELASTIC_SRV, port: $ELASTIC_PORT"
+        echo "Error: Apache ActiveMQ server is not UP"
+        echo "Please check if server is listening on host: $MQ_SRV, port: $MQ_PORT"
         exit
     fi
 
@@ -67,7 +71,7 @@ if [ $send_to_mq ]; then
         
         Try cat $F | perl $ANALYS/mq_pusher.pl $MQ_SRV $MQ_PORT $MQ_QUEUE $MQ_USER $MQ_PASS 
 
-        rm $F
+        # rm $F
     done
 
 fi
