@@ -230,13 +230,13 @@ EXECUTION
 
 == Standalone mode
 
-1. Perform settings on 'bin/env.sh'.
+1. Go to 'bbk-pj/bin' folder. Check settings on 'env.sh'.
 
     1.1. Confirm if paths to the locations for the logs, temporaries and results are properly set.
     
-        export BASE=/home/user/bbk-pj/var # base for data files
-        export SOURCE=$BASE/log # source files (logs)
-        export TEMP=$BASE/tmp # temporary files
+        export BASE=../var       # base for data files
+        export SOURCE=$BASE/log  # source files (logs)
+        export TEMP=$BASE/tmp    # temporary files
         export DEST=$BASE/result # final result
 	
 	1.2. Confirm if full path to the name resolution log file is properly set
@@ -255,21 +255,21 @@ EXECUTION
         export MQ_PORT=61613        # default port
         export MQ_USER=admin        # default user
         export MQ_PASS=admin        # default password
-
-2. Run 'run_mr.sh' to start all MR processes in standalone mode.
+        
+2. Run './run_mr.sh' to start all MR processes in standalone mode.
     It stores the lists of events (LEs) serialized in JSON format in $DEST (var/result) as 'full_le.dmp'
 
-3. Run 'viewer.sh' to check results. It allows the user to browse the LEs generated both in full and summary formats.
+3. Run './viewer.sh' to check results. It allows the user to browse the LEs generated both in full and summary formats.
 
-4. Run 'run_push.sh' to push all results from 'run_mr.sh' into ElasticSearch
+4. Run './run_push.sh' to push all results from 'run_mr.sh' into ElasticSearch
 
-5. Run 'run_analysis.sh' to run the analysis. It stores results in DEST location as 
+5. Run './run_analysis.sh' to run the analysis. It stores results in $DEST location as:
 	a_agg.csv - anomalies (HLEs) detected by checking performance counters
 	a_summary.csv - anomalies (HLEs) detected by checking patterns in summarized LEs.
 
-6. Run 'run_analysis.sh Q' to run the analysis and send the HLEs to the ActiveMQ queue. The default name for the queue is 'HLE'
+6. Run './run_analysis.sh Q' to run the analysis and send the HLEs to the ActiveMQ queue. The default name for the queue is 'HLE'
 
-7. Run 'pull.sh' to retrieve all the contents from the 'HLE' ActiveMQ queue. 
+7. Run './pull.sh' to retrieve all the contents from the 'HLE' ActiveMQ queue. 
     
 == HADOOP mode 
 
@@ -294,7 +294,7 @@ Unit tests have been developed for the Sip Parsing, Sip Ordering, Name matching 
 	colmat/statlib.t
 		test basic statistics for summarization
 		
-	run_tests.sh
+	./run_tests.sh
 		run all tests
 
         
