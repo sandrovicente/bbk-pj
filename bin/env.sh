@@ -1,4 +1,3 @@
-#export BASE=/home/sandro/cygsandro/work/prjtst/github/bbk-pj/var
 export BASE=../var
 export SOURCE=$BASE/log
 export TEMP=$BASE/tmp
